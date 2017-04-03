@@ -27,7 +27,10 @@ def exgreen(im_BGR):
    return 3*im_Norm[:,:,1]/L-1
 
 def plantcont(plants_mask, svg, bg=0):
-   im,c,h=cv2.findContours(plants_mask,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+   if (cv2.__version__[0]=='3'):
+      im,c,h=cv2.findContours(plants_mask,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+   else:
+      c,h=cv2.findContours(plants_mask,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
    cont=[np.vstack([ci[:,0],ci[:,0][0]]) for ci in c if (len(ci)>10)]
    return cont
 
@@ -45,9 +48,16 @@ def plantmask(im, ws_par, ts, bilf=[11, 5, 17], morpho_it=[5,5]):
 
    omask=cv2.morphologyEx(mask, cv2.MORPH_OPEN, kr, iterations=morpho_it[0])
    omask=cv2.dilate(omask,kernel=kr,iterations=morpho_it[1])
+
+   if (cv2.__version__[0]=='3'):
+      dm=cv2.DIST_MASK_PRECISE
+      dt=cv2.DIST_L2
+   else:
+      dm=cv2.cv.CV_DIST_MASK_PRECISE
+      dt=cv2.cv.CV_DIST_L2
+
+   dist=cv2.distanceTransform(255-(omask.astype(np.uint8)), dt, dm)
    
-   d=cv2.DIST_MASK_PRECISE
-   dist=cv2.distanceTransform(255-(omask.astype(np.uint8)), cv2.DIST_L2, d)
    omask=255*(1-(dist>ts/2)).astype(np.uint8)
    return omask
 
