@@ -12,7 +12,7 @@ numpy and the python binding to OpenCV. For Debian/Ubuntu:
 
 .. code:: bash
 
-    apt-get install numpy python-opencv
+    apt-get install python-numpy python-opencv
 
 
 -------
